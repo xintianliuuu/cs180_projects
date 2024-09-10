@@ -82,7 +82,7 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered">
         <div class="column has-text-centered">
-          <h1 class="title is-1 publication-title">Xintian Liu Project 1</h1>
+          <h1 class="title is-1 publication-title">EE280A Project 1: Colorizing the Prokudin-Gorskii photo collection</h1>
           <div class="is-size-5 publication-authors">
             <span class="author-block">
               <a href="https://bsac.berkeley.edu/people/xintian-liu">Xintian Liu</a><sup>1</sup>,</span>
@@ -152,27 +152,28 @@
   </div>
 </section>
 
-<section class="hero teaser">
+<section class="section"></section>
   <div class="container is-max-desktop">
-    <div class="hero-body">
-      <!-- Image Section -->
-      <img src="./static/images/result1.jpg" alt="Description of image" style="width: 100%; height: auto;">
-      
-      <h2 class="subtitle has-text-centered">
-        Image 1.
-      </h2>
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Single-scale implementation on low-res images</h2>
+        <div class="content has-text-justified">
+          <p>
+            In this section, brute-force search within a small range of pixel shifts[-15, 15] is used. L2 norm is defined as the alignment metric. Results are shown below. 
+          </p>
+        </div>
+      </div>
     </div>
-  </div>
-</section>
 
 <section class="hero teaser"></section>
   <div class="container is-max-desktop">
     <div class="hero-body">
       <!-- Image Section -->
-      <img src="./static/images/result2.jpg" alt="Description of image" style="width: 100%; height: auto;">
+      <img src="./static/images/aligned_cathedral_monastery_tobolsk_merge.jpg" alt="Description of image" style="width: 100%; height: auto;">
       
       <h2 class="subtitle has-text-centered">
-        Image 2.
+        Results of single-scale implementation on low-res images.
       </h2>
     </div>
   </div>
@@ -184,15 +185,18 @@
     <!-- Abstract. -->
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Add my text</h2>
+        <h2 class="title is-3">A multiscale pyramid version that works on the large images</h2>
         <div class="content has-text-justified">
           <p>
-            I present the results of my first project.
+            For large image files (in this case, .tif files), brute-force search becomes time-consuming and inefficient. Instead, pyramid search involving creating a series of images at different resolutions and then finding the optimal alignment at each level of the resolutions was used. For my design, each level of the pyramid is a downsampled-by-2 version of the previous image. The search pixel range at each level is defined as [-7, 7] and the total pyramid levels are 5.
           </p>
           <p>
-            I love my proejct...
+            It is also noted that a pre-crop step to cut off unwanted white borders before splitting the original image into three channels is necessary to prevent the large displacement during alignment. After splitting, another pre-defined cropping is used to remove black borders of each image for higher alignment accuracy.
           </p>
-        </div>
+          <p>
+            As a result, each images takes less than 1min processing time and the aligned images were shown below.
+          </p>
+          </div>
       </div>
     </div>
     <!--/ Abstract. -->
