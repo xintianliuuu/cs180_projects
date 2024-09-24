@@ -6,7 +6,7 @@
         content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
   <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CS280A Project1 by Xintian Liu</title>
+  <title>CS280A Project2 by Xintian Liu</title>
 
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
@@ -39,6 +39,9 @@
   <script src="./static/js/bulma-carousel.min.js"></script>
   <script src="./static/js/bulma-slider.min.js"></script>
   <script src="./static/js/index.js"></script>
+  <script type="text/javascript" async
+          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js">
+  </script>
 </head>
 <body>
 
@@ -88,7 +91,7 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered">
         <div class="column has-text-centered">
-          <h1 class="title is-1 publication-title">CS280A Project 2: Title here</h1>
+          <h1 class="title is-1 publication-title">CS280A Project 2: Fun with Filters and Frequencies!</h1>
           <div class="is-size-5 publication-authors">
             <span class="author-block">
               <a href="https://bsac.berkeley.edu/people/xintian-liu">Xintian Liu</a></span>
@@ -158,23 +161,69 @@
   </div>
 </section>
 
-<section class="section"></section>
+<section class="section">
   <div class="container is-max-desktop">
-    <!-- Abstract. -->
+    <!-- Abstract -->
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Overview</h2>
+        <h2 class="title is-3">Part 1: Fun with Filters</h2>
         <div class="content has-text-justified">
           <p>
-            The goal of this assignment is to take the digitized Prokudin-Gorskii glass plate images and, using image processing techniques, automatically produce a color image with as few visual artifacts as possible. In order to do this, the steps are to extract the three color channel images, place them on top of each other, and align them so that they form a single RGB color image. 
+            In this part, 2D convolutions and filtering are explored.
           </p>
+
+          <!-- Subsection 1 -->
+          <h3 class="title is-4">Part1.1: Finite Difference Operator</h3>
+          <p>
+            In this part, finite difference filters D<sub>x</sub> and D<sub>y</sub> are applied.
+          </p>
+          <p>
+            $$ \mathbf{D_x} = \begin{bmatrix} 1 & -1 \end{bmatrix}, \quad \mathbf{D_y} = \begin{bmatrix} 1 \\ -1 \end{bmatrix} $$
+          </p>
+          <figure>
+            <img src="./static/images_proj2/cameraman.png" alt="Description of the image" width="300" />
+            <figcaption>Figure :Original Camera Man.</figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj2/original_dxdy_combine.png" alt="Description of the image" width="600" />
+            <figcaption>Figure : Camera Man using Finite Difference Filters.</figcaption>
+          </figure>
+
+          <!-- Subsection 2 -->
+          <h3 class="title is-4">Part1.2: Derivative of Gaussian (DoG) Filter</h3>
+          <p>
+            Here, the noise issue observed in Part1.1 was addressed using the Gaussian filter as a smoothing operator. The 2D Gaussian kernel was obstained by generating a 
+            1D Gaussian filter using cv2.getGaussianKernel() and then computing the outer product of this filter with its transpose. Compared the outputs, this process helps reduce 
+            the noise and provide a smoother version.
+          </p>
+          <figure>
+            <img src="./static/images_proj2/blurred_cameraman.png" alt="Description of the image" width="300" />
+            <figcaption>Figure : Blurred Camera Man using Gaussian Filter.</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj2/blurred_camerman_dxdy.png" alt="Description of the image" width="600" />
+            <figcaption>Figure : Blurred Camera Man with Finite Difference Filters.</figcaption>
+          </figure>
+
+          <p>
+            Next, a Derivative of Gaussian (DoG) filter is applied on the original image by convolving the Gaussian filter with the difference operators 
+            D<sub>x</sub> and D<sub>y</sub>. The outputs from this approach is the same with the two-step process before.
+          </p>
+          <figure>
+            <img src="./static/images_proj2/Dog_combine.png" alt="Description of the image" width="600" />
+            <figcaption>Figure : Camera Man with DoG Filters.</figcaption>
+          </figure>
+
         </div>
       </div>
     </div>
+  </div>
+</section>
 
-<section class="section"></section>
+
+<!-- <section class="section"></section>
   <div class="container is-max-desktop">
-    <!-- Abstract. -->
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
         <h2 class="title is-3">Single-scale implementation on low-res images</h2>
@@ -184,12 +233,11 @@
           </p>
         </div>
       </div>
-    </div>
+    </div> -->
 
-<section class="hero teaser"></section>
+<!-- <section class="hero teaser"></section>
   <div class="container is-max-desktop">
     <div class="hero-body">
-      <!-- Image Section -->
       <img src="./static/images/aligned_cathedral_monastery_tobolsk_merge.jpg" alt="Description of image" style="width: 100%; height: auto;">
       
       <h2 class="subtitle has-text-centered">
@@ -197,119 +245,144 @@
       </h2>
     </div>
   </div>
-</section>
-
+</section> -->
 
 <section class="section">
   <div class="container is-max-desktop">
-    <!-- Abstract. -->
+    <!-- Abstract -->
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">A multiscale pyramid version that works on the large images</h2>
+        <h2 class="title is-3">Part 2: Fun with Frequencies!</h2>
         <div class="content has-text-justified">
           <p>
-            For large image files (in this case, .tif files), brute-force search becomes time-consuming and inefficient. Instead, pyramid search involving creating a series of images at different resolutions and then finding the optimal alignment at each level of the resolutions was used. For my design, each level of the pyramid is a downsampled-by-2 version of the previous image. The search pixel range at each level is defined as [-7, 7] and the total pyramid levels are 5.
-          </p>
-          <p>
-            It is also noted that a pre-crop step to cut off unwanted white borders before splitting the original image into three channels is necessary to prevent the large displacement during alignment. After splitting, another pre-defined cropping is used to remove black borders of each image for higher alignment accuracy.
-          </p>
-          <p>
-            As a result, each images takes less than 1min processing time and the aligned images were shown below.
-          </p>
-          </div>
-      </div>
-    </div>
 
-    
-<section class="hero teaser"></section>
-  <div class="container is-max-desktop">
-    <div class="hero-body">
-      <!-- Image Section -->
-      <img src="./static/images/aligned_large_tiff_merge.jpg" alt="Description of image" style="width: 100%; height: auto;">
-      
-      <h2 class="subtitle has-text-centered">
-        Results of a multiscale pyramid version on large images.
-      </h2>
+          </p>
+
+          <!-- Subsection 1 -->
+          <h3 class="title is-4">Part2.1: Image "Sharpening"</h3>
+          <p>
+            For image Sharpening, I first apply a Gaussian blur (low-pass filter) to the image to get a smooth version. I then substract this blurred image from the original image
+            to get the high frequency details. These high frequency details are amplified by a factor &alpha; and added back to the original image, enhancing the clarity of the edges and finer details.
+          </p>
+          <p>
+            The mathematical expession is shown below:
+          </p>
+          <p>
+            $$ f + \alpha \left( f - f * g \right) = (1 + \alpha) f - \alpha f * g = f * \left( \left(1 + \alpha \right) e - \alpha g \right) $$
+          </p>
+
+          <figure>
+            <img src="./static/images_proj2/sharpening_expression.png" alt="Description of the image" width="500" />
+            <figcaption>Figure : Visualization of High Frequency Details.</figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj2/shapened_taj.png" alt="Description of the image" width="500" />
+            <figcaption>Figure : Sharpened Taj Mahal.</figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj2/tom_jerry_combine.png" alt="Description of the image" width="100%" />
+            <figcaption>Figure : Sharpened Tom and Jerry with different applied &alpha;.</figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj2/running_dog_combine.png" alt="Description of the image" width="50%" />
+            <figcaption>Figure : Blurred and Re-Sharpened Running Dog (&alpha;=3).</figcaption>
+          </figure>
+
+          <!-- Subsection 2 -->
+          <h3 class="title is-4">Part2.2: Hybrid Images</h3>
+          <p>
+            The goal of this part of the assignment is to create hybrid images using the approach described in the SIGGRAPH 2006 paper by Oliva, Torralba,
+             and Schyns. Hybrid images are static images that change in interpretation as a function of the viewing distance. 
+             The basic idea is that high frequency tends to dominate perception when it is available, but, at a distance, only the low frequency (smooth) part of the signal 
+             can be seen. By blending the high frequency portion of one image with the low-frequency portion of another, a hybrid image is created that leads to different
+              interpretations at different distances.
+          </p>
+          <figure>
+            <img src="./static/images_proj2/hybrid_derek_cat_gray_combine.png" alt="Description of the image" width="600" />
+            <figcaption>Figure : Hybrid Derek and Nutmeg (Grayscale).</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj2/hybrid_moon_mooncake.png" alt="Description of the image" width="800" />
+            <figcaption>Figure : Hybrid Mooncake and Moon (Grayscale).</figcaption>
+          </figure>
+
+          <figure></figure>
+            <img src="./static/images_proj2/frequency_analysis_moonmooncake.png" alt="Description of the image" width="800" />
+            <figcaption>Figure : Frequency analysis of Moon and Mooncake processing.</figcaption>
+          </figure>
+
+          <figure></figure>
+            <img src="./static/images_proj2/color_moonmooncake_hybrid_combine.png" alt="Description of the image" width="800" />
+            <figcaption>Figure : Colorful Hybrid Mooncake and Moon.</figcaption>
+          </figure>
+
+
+          <figure>
+            <img src="./static/images_proj2/hybrid_cat_face.png" alt="Description of the image" width="800" />
+            <figcaption>Figure : Hybrid Cat with Different Face Expressions.</figcaption>
+          </figure>
+
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 
-<section class="section"></section>
-  <div class="container is-max-desktop">
-    <!-- Abstract. -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Bells & Whistles</h2>
-        <div class="content has-text-justified">
-          <p>
-           From the above aligned large-scale images result, it is obvious that 'melons.tif' is not well-aligned very. 
-           This misalignment occurs because the pre-defined margin cutoff cannot account for the differences between the top and bottom margins. 
-           As a result, the red channal image, after splitting, is significantly shifted from the correct alignment. 
-           Even with the pyramid searching function, it is still hard to align it to the blue channel. 
-          </p>
-          <p>
-            With the help of the sobel filter, the edge of the original image can be detected (with a threshold of 0.1). The aligned image is much better than before.
-           </p>
-        </div>
-      </div>
-    </div>
-   
-<section class="hero teaser"></section>
-    <div class="container is-max-desktop">
-      <div class="hero-body">
-        <!-- Image Section -->
-        <img src="./static/images/before_after_autocropping_merge.jpg" alt="Description of image" style="width: 100%; height: auto;">
-        
-        <h2 class="subtitle has-text-centered">
-          Examples of alignments using auto-cropping.
-        </h2>
-      </div>
-    </div>
-  </section>
-
 
 <section class="section"></section>
   <div class="container is-max-desktop">
-    <!-- Abstract. -->
+    <!-- Abstract -->
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Other Examples</h2>
+        <h2 class="title is-3">Multi-Resolution Blending and the Oraple Journey</h2>
         <div class="content has-text-justified">
           <p>
-           This section shows more images downloaded from the website.
-          </p>
-        </div>
-      </div>
-    </div>
-    
-    <section class="hero teaser"></section>
-    <div class="container is-max-desktop">
-      <div class="hero-body">
-        <!-- Image Section -->
-        <img src="./static/images/otherimages.jpg" alt="Description of image" style="width: 100%; height: auto;">
-        
-        <h2 class="subtitle has-text-centered">
-          Aligned animal images.
-        </h2>
-      </div>
-    </div>
-  </section>
-    <!--/ Abstract. -->
+            The goal of this part of the assignment is to blend two images seamlessly using a multi resolution blending as described in the 1983 paper by Burt and Adelson. 
+            An image spline is a smooth seam joining two image together by gently distorting them. 
+            Multiresolution blending computes a gentle seam between the two images seperately at each band of image frequencies, resulting in a much smoother seam.
 
-    <!-- Paper video. -->
-    <!-- <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Video</h2>
-        <div class="publication-video">
-          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
-                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          </p>
+
+          <!-- Subsection 1 -->
+          <h3 class="title is-4">Part2.3: Gaussian and Laplacian Stacks"</h3>
+          <p>
+            A Guussian and a Laplacian stacks are implementated and applied to recreate the figure from the paper mentioned above.
+          </p>
+
+
+          <figure>
+            <img src="./static/images_proj2/orange_apple_stack.png" alt="Description of the image" width="1000" />
+            <figcaption>Figure : Visualization of Apple and Orange Stacks.</figcaption>
+          </figure>
+
+          
+
+          <!-- Subsection 2 -->
+          <h3 class="title is-4">Part2.4: Multiresolution Blending (A.K.A. The Oraple!)</h3>
+          <p>
+
+          </p>
+          <figure>
+            <img src="./static/images_proj2/reconstuct.png" alt="Description of the image" width="600" />
+            <figcaption>Figure : Reconstruction of Laplacian Pyramid Blending Details (Burt and Adelson 1983b) using Stacks.</figcaption>
+          </figure>
+          
+          <figure>
+            <img src="./static/images_proj2/blended_cat_USD100.png" alt="Description of the image" width="800" />
+            <figcaption>Figure : Blended USD100 with My Cat using Irregular Mask.</figcaption>
+          </figure>
+
         </div>
       </div>
-    </div> -->
-    <!--/ Paper video. -->
+    </div>
   </div>
 </section>
+
+
 
 
 <footer class="footer">
