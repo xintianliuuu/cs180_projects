@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
+  <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CS280A Project3 by Xintian Liu</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+  <script type="text/javascript" async
+          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+  <style>
+    /* Reduce padding in the section */
+    .section {
+      padding-top: 20px;  /* Reduced from Bulma's default 3rem (48px) */
+      padding-bottom: 20px;
+    }
+  
+    /* Control spacing inside columns */
+    .columns {
+      margin-bottom: 10px; /* Adjust margin below columns */
+    }
+  
+    /* Adjust figure caption spacing */
+    figure {
+      margin-top: 10px;    /* Add slight space above the figure */
+      margin-bottom: 10px; /* Reduce default space below the figure */
+    }
+    
+    /* Reduce spacing around the container */
+    .container {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  </style>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <!-- <a class="navbar-item" href="https://keunhong.com">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a> -->
+
+      <a class="navbar-item" href="index.html">Project 1</a>
+      <a class="navbar-item" href="project2.html">Project 2</a>
+      <a class="navbar-item" href="project3.html">Project 3</a>
+
+    </div>
+
+  </div>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-widescreen">
+      <div class="columns is-centered">
+        <div class="column has-text-centered is-10">
+          <style>
+            .figure-centered {
+              display: flex;
+              justify-content: center; /* Horizontal centering */
+              align-items: center;     /* Vertical centering (if needed) */
+            }
+          </style>
+          
+          <figure class="figure-centered">
+            <img src="./static/images_proj3/title.gif" alt="Description of the image" style="width: 50%; height: auto;">
+          </figure>
+          <h1 class="title is-1 publication-title">CS280A Project 3: Face Morphing</h1>
+        
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://bsac.berkeley.edu/people/xintian-liu">Xintian Liu</a></span>
+          </div>
+          <div class="column has-text-centered">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part 1. Defining Correspondences</h2>
+        <div class="content has-text-justified">
+          <p>
+            In this part, I selected my own photo and a photo of my favourate actress, 
+            <a href="https://en.wikipedia.org/wiki/Liu_Yifei" target="_blank">Liu Yifei</a>. 
+            For kaypoint labeling, I used the correspondence toll from last year. 
+            To generate a smooth transition between two photos, I first compute the average of the 
+            correspondence key points (<code>points_A</code> and <code>points_B</code>), resulting in
+            the intermidiate shape <code>points_avg</code>.
+            Then, the triangulation to the average shape was done using Delaunay traiangulation via <code>scipy.spatial</code> module.
+          </p>
+
+          <figure>
+            <img src="./static/images_proj3/triangulation_mine_lyf.png" alt="Description of the image" width="80%" />
+            <figcaption>Figure :Triangulation applied to my own photo and Liu Yifei's photo.</figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part 2. Computing the "Mid-way Face"</h2>
+        <div class="content has-text-justified">
+          <p>
+            Before computing the whole morph sequence, the goal is to compute the mid-way face of the images I chose in the previous part. This involves:
+          </p>
+          <ol>
+              <li>
+                  <strong>Affine transformation between triangles (<code>computeAffine</code>)</strong><br>
+                  I used a mathematical operation to solve for the affine matrix <code>A</code> that maps the source triangle points to the destination triangle points.
+              </li>
+              <li>
+                  <strong>Warping Individual Triangles (<code>warp_triangle_function</code>)</strong><br>
+                  This function applies the affine transformation to each triangle in the source image, warping them to the corresponding triangles in the destination image.
+              </li>
+              <li>
+                  <strong>Warp the Entire Image (<code>warp_image_function</code>)</strong><br>
+                  This function loops over all the triangles and warps each of them from the source position to the average position. The result is an image whose triangles are matched to the average shape.
+              </li>
+              <li>
+                  <strong>Computing the Mid-way Face (<code>compute_mid_face</code>)</strong><br>
+                  This function includes averaging keypoints, warping both images, and then averaging the pixel values.
+              </li>
+          </ol>
+          <figure>
+            <img src="./static/images_proj3/mid-way.png" alt="Description of the image" width="100%" />
+            <figcaption>Figure :Mid-way face</figcaption>
+          </figure>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part 3. The Morph Sequence</h2>
+        <div class="content has-text-justified">
+          <p>
+          The morph sequence was created by generating 45 frames, adjusting both 
+          <code>warp_frac</code> and <code>dissolve_frac</code>. The sequence was then saved as GIF (interval = 10ms)
+          to show the gradual transition from my face to another.
+          </p>   
+          <figure>
+            <img src="./static/images_proj3/morph_sequence.gif" alt="Description of the image" width="40%" />
+            <figcaption>Figure : Morph sequence</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part 4. The "Mean face" of a population</h2>
+        <div class="content has-text-justified">
+          <p>
+          This part involves two actions:1. Compute the average face shape of the whole population (I used Danes dataset). 
+          2. Morph each of the faces in the dataset into the average shape. 
+          </p>   
+          <figure>
+            <img src="./static/images_proj3/average_danes_face.png" alt="Morph sequence GIF" width="50%" />
+            <figcaption>Figure : Average face of Danes</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj3/danes_warp_to_average.png" alt="Morph sequence GIF" width="100%" />
+            <figcaption>Figure : Examples of original face warped to the average shape </figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj3/keypoint_visualization_mine_danes.png" alt="Morph sequence GIF" width="80%" />
+            <figcaption>Figure : Visulization of keypoints on average Danes face and marking of the same keypoints location on my face </figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj3/mine_danes_warped.png" alt="Morph sequence GIF" width="80%" />
+            <figcaption>Figure : Warped my face to average Danes face shape and Warped average Danes face to my face shape</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part 5. Caricatures: Extrapolating from the mean</h2>
+        <div class="content has-text-justified">
+          <p>
+            This part includes a caricature of my face by extrapolating from the Danes population average face.
+          </p>   
+          <figure>
+            <img src="./static/images_proj3/caricatures.png" alt="Description of the image" width="80%" />
+            <figcaption>Figure : My morphed woozy face with <code>warp_frac</code>=1.5 and my morphed smirk face 
+              with <code>warp_frac=-0.5</code></figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-widescreen">
+    <!-- Main Section: Bells and Whistles -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Bells and Whistles</h2>
+        <div class="content has-text-justified">
+         
+          <!-- Subsection -->
+          <h3 class="title is-4">1. Changing Age</h3>
+          <p>
+            Here, I found the average face of old(60-69 years old) chinese women from[1]. I picked some 
+            keypoints from both my photo and the average face, then morphed my face to the average face via 
+            only shape, only appearance and both. To be honest, I would be very glad if I could look like this when
+            I turn 60!
+          </p>
+          <p>
+            [1] Porcheron, Aurélie, et al. "Facial contrast is a cross-cultural cue for perceiving age." Frontiers in Psychology 8 (2017): 1208.
+          </p>
+          <figure>
+            <img src="./static/images_proj3/old_xintian.png" alt="Exaggerated face" width="100%" />
+            <figcaption>Figure : Old version (60-69 years old) of Xintian</figcaption>
+          </figure>
+
+          <!-- Subsection -->
+          <h3 class="title is-4">2. Making a morphing music video of my fluffy friends!</h3>
+          <p>
+            Here, I selected my fluffy friends~ From begining to the end, we have Dabai, Maimai
+            and Taro~
+          </p>
+          <p>
+           
+          </p>
+          <figure>
+            <img src="./static/images_proj3/fluffy-photos.png" alt="Exaggerated face" width="100%" />
+            <figcaption>Figure : Fluffy friends with their mid-way images</figcaption>
+          </figure>
+
+
+
+          <div class="video-container">
+            <video width="320" height="180" controls>
+              <source src="./static/images_proj3/fluffyfriend.mp4" type="video/mp4">
+
+            </video>
+          </div>
+          <style>
+            .video-container {
+              display: flex;
+              justify-content: center;  /* Centers the video horizontally */
+              align-items: center;      /* Centers the video vertically if you need vertical centering */
+              height: auto;             /* Adjust height if needed */
+            }
+          </style>
+          
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="./static/videos/nerfies_paper.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
+            we just ask that you link back to this page in the footer.
+            Please remember to remove the analytics code included in the header of the website which
+            you do not want on your website.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
