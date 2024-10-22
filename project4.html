@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
+  <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CS280A Project4 by Xintian Liu</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+  <script type="text/javascript" async
+          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+  <style>
+    /* Reduce padding in the section */
+    .section {
+      padding-top: 20px;  /* Reduced from Bulma's default 3rem (48px) */
+      padding-bottom: 20px;
+    }
+  
+    /* Control spacing inside columns */
+    .columns {
+      margin-bottom: 10px; /* Adjust margin below columns */
+    }
+  
+    /* Adjust figure caption spacing */
+    figure {
+      margin-top: 10px;    /* Add slight space above the figure */
+      margin-bottom: 10px; /* Reduce default space below the figure */
+    }
+    
+    /* Reduce spacing around the container */
+    .container {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  
+  </style>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <!-- <a class="navbar-item" href="https://keunhong.com">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a> -->
+
+      <a class="navbar-item" href="index.html">Project 1</a>
+      <a class="navbar-item" href="project2.html">Project 2</a>
+      <a class="navbar-item" href="project3.html">Project 3</a>
+      <a class="navbar-item" href="project4.html">Project 4</a>
+
+    </div>
+
+  </div>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-widescreen">
+      <div class="columns is-centered">
+        <div class="column has-text-centered is-10">
+          <style>
+            .figure-centered {
+              display: flex;
+              justify-content: center; /* Horizontal centering */
+              align-items: center;     /* Vertical centering (if needed) */
+            }
+          </style>
+          
+          <figure class="figure-centered">
+            <img src="./static/images_proj4/title.JPG" alt="Description of the image" style="width: 80%; height: auto;">
+          </figure>
+          <h1 class="title is-1 publication-title">CS280A Project 4: IMAGE WARPING and MOSAICING (First Part)</h1>
+        
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://bsac.berkeley.edu/people/xintian-liu">Xintian Liu</a></span>
+          </div>
+          <div class="column has-text-centered">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.1: Shoot the Pictures</h2>
+        <div class="content has-text-justified">
+          <figure>
+            <img src="./static/images_proj4/apartmentview.png" alt="Morph sequence GIF" width="100%" />
+            <figcaption>Figure : View from my aparment view (Four photos taken)</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj4/labview.png" alt="Morph sequence GIF" width="100%" />
+            <figcaption>Figure : View from my lab space (Two photos taken)</figcaption>
+          </figure>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.2: Recover Homographies</h2>
+        <div class="content has-text-justified">
+          <p>
+            Before warping images into alignment, we need to recover the parameters of the transformation between each pair of images. 
+            The transformation is a homography: p’=Hp, where H is a 3x3 matrix with 8 degrees of freedom.
+          </p>
+          <p>
+            $$ \begin{bmatrix} wx' \\ wy' \\ w \end{bmatrix} = H \cdot \begin{bmatrix} x \\ y \\ 1 \end{bmatrix} $$
+          </p>
+          <p>Where \( H \) is:</p>
+          <p>
+
+              $$ H = \begin{bmatrix} h_{11} & h_{12} & h_{13} \\ h_{21} & h_{22} & h_{23} \\ h_{31} & h_{32} & 1 \end{bmatrix} $$
+          </p>
+
+          <p>
+              Given a point \( (x, y) \) in the first image and its corresponding point \( (x', y') \) in the second image, the equation can be rearranged to:
+          </p>
+          <p>
+              $$ h_{11}x + h_{12}y + h_{13} - h_{31}x \cdot x' - h_{32}y \cdot x' = x' $$
+              $$ h_{21}x + h_{22}y + h_{23} - h_{31}x \cdot y' - h_{32}y \cdot y' = y' $$
+          </p>
+          <p>
+            To solve for \( H \), <code>computeH</code> constructs a matrix equation \( A \cdot H = b \) 
+            and uses least squares method to find the solution that minimizes the sum of the squared residuals, where:
+          </p>
+          <p>
+            $$ A = \begin{bmatrix} x & y & 1 & 0 & 0 & 0 & -x \cdot x' & -y \cdot x' \\ 0 & 0 & 0 & x & y & 1 & -x \cdot y' & -y \cdot y' \end{bmatrix} $$
+          </p>
+          <p>The vector \( b \) is:</p>
+          <p>
+            $$ b = \begin{bmatrix} x' \\ y' \end{bmatrix} $$
+          </p>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.3: Warp the Images</h2>
+        <div class="content has-text-justified">
+          <p>
+          After computing  \( H \) from corresponding points from two images, I warp the second image to the first image with forward warping and fill the unmapped pixels
+          using nearest-neighbor interpolation via <code>warpImage_rec(im, H, polygon = True)</code> The details are:
+          </p>
+          <ol>
+            <li><strong>Original Image Corner Detection and Transformation</strong>:
+
+                  The corners of the original image are identified and projected using the homography matrix \( H \).
+                  This defines the boundaries(corners) of the warped image. The max and min coordinates of the transformed corners
+                  are used to determine the size of the output image.
+            </li>
+
+            <li><strong>Forward Mapping and Interpolation</strong>:
+              The original image coordinates are transformed using the homography matrix. A mask is created to identify valid (in-bounds) coordinates for mapping.
+              The <code>griddata</code> function with the 'nearest' method is used to interpolate pixel values from the original image to the warped image grid, 
+              ensuring that unmapped pixels are filled accurately.
+
+            </li>
+            <li><strong>Polygon Masking</strong>:
+              If a polygon mask is applied, the shifted corners of the warped image are used to define the polygon region.
+              The mask ensures that only the valid region (defined by the warped polygon) is preserved in the final image, while other areas are set to zero.
+              
+            </li>
+        </ol>
+
+        <p>
+          Two examples of rectified images are shown below:
+        </p>
+          
+
+          <figure>
+            <img src="./static/images_proj4/rectified_calendar.png" alt="Description of the image" width="100%" />
+            <figcaption>Figure : Rectified Image: Calendar</figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj4/rectified_board.png" alt="Description of the image" width="100%" />
+            <figcaption>Figure : Rectified Image: Board</figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.4: Blend the Images into a Mosaic</h2>
+        <div class="content has-text-justified">
+          <p>
+            The goal of this section is to blend two images smoothly by warping the second image into
+             the coordinate of the first image and using a distance transform mask for a gradual transition 
+             in the overlapping area of first and second images.
+
+          </p>   
+          <ol>
+            <li><strong>Distance Transform Mask <code>create_distance_transform_mask</code></strong>:
+
+                  This functions computes the ditance of each pixel from the nearest edge, then normalizes the 
+                  distance to the range of 0 and 1.
+            </li>
+            <li><strong>Blend Two Images <code>BlendTwoImages_Distance</code></strong>:
+
+              This functions mainly involves: (1) Warp the second image; (2)Create a binary mask to identify overlap area;
+              (3) Distance transform for alpha blending; (4) Combine the first and second images.
+        </li>
+          <figure>
+            <img src="./static/images_proj4/blended_12.png" alt="Blended view1 & view2" width="100%" />
+            <figcaption>Figure : Blended apartment view1 and view2 (Unwarped: view1)</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj4/blended_34.png" alt="Blended view3 & view4" width="100%" />
+            <figcaption>Figure : Blended apartment view3 and view4 (Unwarped: view3) </figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj4/blend_1234.jpg" alt="Blended view1234" width="100%" />
+            <figcaption>Figure : Blended apartment view1-4 (Unwarped: view1)  </figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj4/blended_lab12.png" alt="Blended lab12" width="100%" />
+            <figcaption>Figure : Blended lab1 and lab2 </figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj4/blended_buildingview.png" alt="Blended lab12" width="100%" />
+            <figcaption>Figure : Blended Building inside </figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="./static/videos/nerfies_paper.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
+            we just ask that you link back to this page in the footer.
+            Please remember to remove the analytics code included in the header of the website which
+            you do not want on your website.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
