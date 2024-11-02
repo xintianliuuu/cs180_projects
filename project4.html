@@ -114,7 +114,7 @@
           <figure class="figure-centered">
             <img src="./static/images_proj4/title.JPG" alt="Description of the image" style="width: 80%; height: auto;">
           </figure>
-          <h1 class="title is-1 publication-title">CS280A Project 4: IMAGE WARPING and MOSAICING (First Part)</h1>
+          <h1 class="title is-1 publication-title">CS280A Project 4: IMAGE WARPING and MOSAICING</h1>
         
           <div class="is-size-5 publication-authors">
             <span class="author-block">
@@ -309,8 +309,208 @@
 
 
 
+<section class="section">
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+       
+                <h2 class="title is-3">Part B.1: Detecting Corner Features</h2>
+                <div class="content has-text-justified">
+                  <p>Note: For implementation of part B, I realize the images with more features are better candidates
+                     for mosaic. So I've taken more pictures for image processing in this part.
+                  </p>
+                  <figure>
+                    <img src="./static/images_proj4b/building_1_and_2.png" alt="Building corner detection" width="500%" />
+                    <figcaption>Figure: Buildings.</figcaption>
+                  </figure>
+                  <figure>
+                    <img src="./static/images_proj4b/wall_1_and_2.png" alt="Building corner detection" width="500%" />
+                    <figcaption>Figure: Walls.</figcaption>
+                  </figure>
+
+                  <!-- Subsection 1 -->
+                  <h3 class="title is-4"> Harris Interest Point Detector</h3>
+                  <p>
+                    We start with directing using harris corner detection given in <code>harris.py</code>.
+                    In practice, 
+                    I find out <code>min_distance=5</code> and <code>edge_discard=20</code> gives resonable
+                    number of harris corners in a short time period.
+                  </p>
+                  <p>
+                    Examples of Harris corners detection are shown below.
+                  </p>
+                  
+                  <figure>
+                    <img src="./static/images_proj4b/harris_corners_building12.png" alt="Harris corner detection" width="100%" />
+                    <figcaption>Figure: Detected corners in the building images.</figcaption>
+                  </figure>
+        
+        
+                  <!-- Subsection 2 -->
+                  <h3 class="title is-4">Adaptive Non-Maximal Suppression(ANMS)</h3>
+                  <p>To minimize redundant feature corner points, I implement ANMS algorithon[1] as outlined in the function
+                    <code>apply_ANMS</code>. The array <code>radii</code> is initialized as infinite values to store
+                    the mininum suppression radius for each point.
+                  </p>
+                  The minimum suppresion radius \( r_i \) is given as:
+                  <p>
+                    $$ r_i = \min_j \, | \mathbf{x}_i - \mathbf{x}_j |, \quad \text{s.t. } f(\mathbf{x}_i) < c_{\text{robust}} f(\mathbf{x}_j), \quad \mathbf{x}_j \in \mathcal{I} $$
+                  </p>
+                  <p>
+                    For each corner point, the function iteratively computes \( r_i \). A point <code>i</code> of considers 
+                    another point <code>j</code> only if <code>f[i] < c_robust * f[j]</code>. This ensures the weak points 
+                    are suppressed if they are near a strong point. The Eculidean distance between points <code>i</code> and 
+                    <code>j</code> is calculated and stored as the suppresion radius if it is smaller than the 
+                    current value.
+                  </p>
+                  <p>Examples of detected Harris corners with ANMS are shown below. In these cases, <code>c_robust = 0.9</code>
+                  and the number of selected points is 500.</p>
+                  <p>
+                    [1]Brown, Matthew, Richard Szeliski, and Simon Winder. 
+                    "Multi-image matching using multi-scale oriented patches." 
+                    2005 IEEE Computer Society Conference on Computer Vision and Pattern Recognition (CVPR'05). 
+                    Vol. 1. IEEE, 2005.
+                  </p>
+                  <figure>
+                    <img src="./static/images_proj4b/harris_corners_building12_ANMS.png" alt="Corner detection ANMS" width="100%" />
+                    <figcaption>Figure: Detected corners with ANMS.</figcaption>
+                  </figure>
+        
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      
+        
+
+        
 
 
+        <section class="section">
+          <div class="container is-max-widescreen">
+            <!-- Abstract -->
+            <div class="columns is-centered has-text-centered">
+              <div class="column is-four-fifths">
+                <h2 class="title is-3">Part B.2: Extracting a Feature Descriptor for Each Feature Point </h2>
+                <div class="content has-text-justified">
+                  <p>The <code>descriptor</code> function generates descriptors for each selected corners 
+                  from the previous parts by extracting the local patches (40x40) around it and downscale it 
+                 to 8x8.</p>
+                 <p>It is noted that Gaussian blurring is used here to reduce the noise. Then <code>skimage.transform.resize</code> with 
+                  <code>anti_aliasing=True</code> is used. To make the descriptor invariant to intensity, the resized patch is normalized.
+
+                 </p>
+                  <figure>
+                    <img src="./static/images_proj4b/descriptor.png" alt="Descriptor" width="50%" />
+                    <figcaption>Figure : A descriptor example.</figcaption>
+                  </figure>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        
+        <section class="section">
+          <div class="container is-max-widescreen">
+            <!-- Abstract -->
+            <div class="columns is-centered has-text-centered">
+              <div class="column is-four-fifths">
+                <h2 class="title is-3">Part B.3: Matching Feature Descriptors between Two Images </h2>
+                <div class="content has-text-justified">
+                  <p>
+                    The <code>feature_matching</code> function identifies corresponding features between two sets 
+                    of the descriptors extracted from images by comparing their similarity using Euclidean distance.
+                  </p>
+                  <p>
+                    To ensure reliable matches, the function applies Lowe's ratio test. If the distance to the closest 
+                    match is significantly smaller (defined by <code>threshold</code>) than the distance to the second-closest 
+                    match, the pair of descriptors is considered as a good match.
+                  </p>
+                  <p>
+                    Output here is a list of matched index pairs representing reliably matched feature points.
+                  </p>
+                  <figure>
+                    <img src="./static/images_proj4b/sample_matched_features.png" alt="Matched features" width="100%" />
+                    <figcaption>Figure : View of matched feature descriptors between two images.(Left: Building1, Right: Building2)</figcaption>
+                  </figure>
+                  <p>
+                    However, as shown above, some line pairs indicate incorrect matches that should not be paired. It can be 
+                    fixed in next section when finding homography.
+                  </p>
+       
+        
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="container is-max-widescreen">
+            <!-- Abstract -->
+            <div class="columns is-centered has-text-centered">
+              <div class="column is-four-fifths">
+                <h2 class="title is-3">Part B.4: A Robust Method (RANSAC) to Compute a Homography </h2>
+                <div class="content has-text-justified">
+                  <p>
+                    From lecture note, RANSAC for estimating homography follows the key steps in RANSAC loop 
+                    (<code>num_iteration = 1000</code>): 
+                    1. Select four feature pairs (at random); 2. Compute homography \( H \) (exact); 
+                    3. Compute \( inliers \) where dist(pi', Hpi) < \( \epsilon \); 4. Keep largest 
+                    set of inliers; 5. Re-compute least sqaures H estimate on all of the inliers.
+                  </p>
+                  <figure>
+                    <img src="./static/images_proj4b/inliers.png" alt="Inliers" width="100%" />
+                    <figcaption>Figure : Point inliers shown in images.</figcaption>
+                  </figure>
+                  <p>
+                    Now we can see that the incorrect pairs have been removed.
+                  </p>
+       
+        
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+
+        <section class="section">
+          <div class="container is-max-widescreen">
+            <!-- Abstract -->
+            <div class="columns is-centered has-text-centered">
+              <div class="column is-four-fifths">
+                <h2 class="title is-3">Part B.5: Producing Mosaic via Autostitching </h2>
+                <div class="content has-text-justified">
+
+                  <figure>
+                    <img src="./static/images_proj4b/blend_building.jpg" alt="Inliers" width="100%" />
+                    <figcaption>Figure : Blended images of buildings.</figcaption>
+                  </figure>
+                  <p>
+                    More examples:
+                    </p>
+                    <figure>
+                      <img src="./static/images_proj4b/blended_wall.png" alt="Inliers" width="100%" />
+                      <figcaption>Figure : Blended images of walls.</figcaption>
+                    </figure>
+
+                    <figure>
+                      <img src="./static/images_proj4b/blended_lab.png" alt="Inliers" width="100%" />
+                      <figcaption>Figure : Blended images of labs.</figcaption>
+                    </figure>
+       
+        
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        
 
 
 <footer class="footer">
