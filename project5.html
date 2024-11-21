@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
+  <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CS280A Project5 by Xintian Liu</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+  <script type="text/javascript" async
+          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+  <style>
+    /* Reduce padding in the section */
+    .section {
+      padding-top: 20px;  /* Reduced from Bulma's default 3rem (48px) */
+      padding-bottom: 20px;
+    }
+  
+    /* Control spacing inside columns */
+    .columns {
+      margin-bottom: 10px; /* Adjust margin below columns */
+    }
+  
+    /* Adjust figure caption spacing */
+    figure {
+      margin-top: 10px;    /* Add slight space above the figure */
+      margin-bottom: 10px; /* Reduce default space below the figure */
+    }
+    
+    /* Reduce spacing around the container */
+    .container {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  
+  </style>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <!-- <a class="navbar-item" href="https://keunhong.com">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a> -->
+
+      <a class="navbar-item" href="index.html">Project 1</a>
+      <a class="navbar-item" href="project2.html">Project 2</a>
+      <a class="navbar-item" href="project3.html">Project 3</a>
+      <a class="navbar-item" href="project4.html">Project 4</a>
+      <a class="navbar-item" href="project5.html">Project 5</a>
+
+    </div>
+
+  </div>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-widescreen">
+      <div class="columns is-centered">
+        <div class="column has-text-centered is-10">
+          <style>
+            .figure-centered {
+              display: flex;
+              justify-content: center; /* Horizontal centering */
+              align-items: center;     /* Vertical centering (if needed) */
+            }
+          </style>
+          
+
+          <h1 class="title is-1 publication-title">CS280A Project 5: Fun With Diffusion Models!</h1>
+        
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://bsac.berkeley.edu/people/xintian-liu">Xintian Liu</a></span>
+          </div>
+          <div class="column has-text-centered">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A: The Power of Diffusion Models!</h2>
+        <div class="content has-text-justified">
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.0: Setup</h2>
+        <div class="content has-text-justified">
+          <p>
+            In the notebook, we instantiate DeepFloyd's stage_1 and stage_2 objects used for generation, 
+            as well as several text prompts for sample generation.
+            
+          </p>
+          <P>
+            For small <code>num_inference_steps</code>, for example, 5, the output fails to provide sufficient 
+            details and contains a lot of noise in the figure. The desciptor from the prompt is poorly reflected 
+            in the output. As we increases <code>num_inference_steps</code>, more details are showcased and 
+            the output better aligns with the content in the prompt.
+          </P>
+          <p>Random seed I'm using here is 1998.
+          </p>
+          <figure>
+            <img src="./static/images_proj5/step_num_4.png" alt="num_4" width="100%" />
+            <figcaption>Figure 1: Outputs with <code>num_inference_step</code> = 4.</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/step_num__20.png" alt="num_4" width="100%" />
+            <figcaption>Figure 2: Outputs with <code>num_inference_step</code> = 20.</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/step_num_200.png" alt="num_4" width="100%" />
+            <figcaption>Figure 3: Outputs with <code>num_inference_step</code> = 200.</figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.1: Sampling Loops</h2>
+        <div class="content has-text-justified">
+          
+
+
+
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.1.1: Implementing the Forward Process</h2>
+        <div class="content has-text-justified">
+          <p>
+            A key part of diffusion is the forward process, which takes a clean image and adds noise to it.
+            The forward process is defined by:
+          </p>
+          <p>$$q(x_t \mid x_0) = \mathcal{N}(x_t; \sqrt{\bar{\alpha}_t}x_0, (1 - \bar{\alpha}_t)\mathbf{I})$$</p>
+          <p>
+            which is equivalent to computing
+          </p>
+          <p>$$x_t = \sqrt{\bar{\alpha}_t}x_0 + \sqrt{1 - \bar{\alpha}_t} \epsilon, \quad \text{where } \epsilon \sim \mathcal{N}(0, 1)$$</p>
+          <p>
+            That is, given a clean image \( x_0 \), we got a noisy image \( x_t \) at timestep \( t \) 
+            by sampling from a Gaussian with mean \( \sqrt{\bar{\alpha}_t} x_0 \) and variance \( 1-\bar{\alpha}_t  \) 
+            Note that the forward process is not just adding the noise - we also scale the image.
+          </p>
+          <p>
+            In this part, we use the <code>alphas_cumprod</code> variable, which contains the \( \bar{\alpha}_t \) 
+            for all \( t \in [0, 999] \). \( t=0 \) corresponds to a clean image and larger \(t\) corresponds to more noise.
+            Thus,  \( \bar{\alpha}_t \) is close to 1 for small \( t \), and close to 0 for larger \( t \).
+
+          </p>
+
+
+          <figure>
+            <img src="./static/images_proj5/forwardprocess.png" alt="num_4" width="100%" />
+            <figcaption>Figure 4: Test Berkeley Campanile image at noise level [250, 500, 750].</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.1.2: Classical Denoising</h2>
+        <div class="content has-text-justified">
+          <p>
+            In this part, we take noisy images for timesteps[250, 500, 750], but use Gaussian blur filterring to 
+            try to remove noise.
+          </p>   
+ 
+          <figure>
+            <img src="./static/images_proj5/classic_denoising.png" alt="Classic Denoising" width="100%" />
+            <figcaption>Figure 5: Gaussian-denoised version of 3 previous noisy test images.</figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.1.3: One-Step Denoising</h2>
+        <div class="content has-text-justified">
+          <p>
+            Now, we use a pretrained diffusion model to denoise. The actual denoiser can be found at <code>stage_1.unet</code>.
+            This is a UNet that has already been trained on a very very large dataset of (\(x_0, x_t\)) pairs of images.
+            We can use it to recover Gaussian noise from the image. Then, we can remove this noise to recover (something close to)
+            the original image.
+            The text prompt embedding used here is <code>"a high quality photo"</code>.
+          </p>   
+ 
+          <figure>
+            <img src="./static/images_proj5/onestep_denoise250.png" alt="Classic Denoising" width="100%" />
+            <figcaption>Figure 6-1: Noisy and one-step denoised Campanile at t=250.</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/onestep_denoise500.png" alt="Classic Denoising" width="100%" />
+            <figcaption>Figure 6-2: Noisy and one-step denoised Campanile at t=500.</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/onestep_denoise750.png" alt="Classic Denoising" width="100%" />
+            <figcaption>Figure 6-3: Noisy and one-step denoised Campanile at t=750.</figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.1.4: Iterative Denoising</h2>
+        <div class="content has-text-justified">
+          <p>
+            Diffusion models are designed to denoise iteratively.
+          </p>   
+ 
+          <figure>
+            <img src="./static/images_proj5/iterative_5th.png" alt="Iterative Denoising" width="100%" />
+            <figcaption>Figure 7-1: Noisy image every 5th loop of denoising.</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/iterative_result.png" alt="Iterative Denoising" width="100%" />
+            <figcaption>Figure 7-2: Final predicted clean image using iterative denoising(left), 
+              only a single denoising step(middle) and gaussian blurring(right).</figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.1.5: Diffusion Model Sampling</h2>
+        <div class="content has-text-justified">
+          <p>
+            Another thing we can do with the <code>iterative_denoise</code> function is to
+            generate images from scratch. We can do this by setting <code>i_start = 0</code>
+            and passing in random noise. This effectively denoises pure noise. Prompt used here is 
+            <code>"a high quality photo"</code>.
+          </p>   
+          <figure>
+            <img src="./static/images_proj5/duffision_model_sampling.png" alt="Iterative Denoising" width="100%" />
+            <figcaption>Figure 8: 5 sampled images.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.1.6: Classifier-Free Guidance (CFG)</h2>
+        <div class="content has-text-justified">
+          <p>
+            In order to greatly improve image quality (at the expense of image diversity), we can use 
+            a technique called Classifier-Free Guidance.
+          </p>   
+          <p>
+            In CFG, we compute both a conditional and an conditional noise estimate. We denote these 
+            \(\epsilon_c\) and \(\epsilon_u\). Then we let our new noise estimate be:
+          </p>
+          <p>$$\epsilon = \epsilon_u + \gamma (\epsilon_c - \epsilon_u)$$</p>
+          <p>
+            where \(\gamma\) controls the strength of CFG. Notice that for \(\gamma=0\), we get an unconditional noise estimate,
+            and for \(\gamma=1\) we get the conditional noise estimate. 
+            The magic happens when \(\gamma>1\). In this case, we get much higher quality images.
+          </p>
+
+          <figure>
+            <img src="./static/images_proj5/CFG.png" alt="Classifier-Free Guidance (CFG)" width="100%" />
+            <figcaption>Figure 9: 5 sampled images with CFG.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.1.7: Image-to-image Translation</h2>
+        <div class="content has-text-justified">
+          <p>
+            Here, we run the forward process to get a noisy test image, then 
+            run the <code>iterative_denoise_cfg</code> function using a starting index of 
+            [1, 3, 5, 7, 10, 20] steps.
+          </p>   
+          <figure>
+            <img src="./static/images_proj5/image_to_image_1.png" alt="Image-to-image Translation" width="100%" />
+            <figcaption>Figure 10-1: SDEdit Berkeley Campanile with i_start = 1,3,5,7,10,20(from left to right). </figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/image_to_image_2.png" alt="Image-to-image Translation" width="100%" />
+            <figcaption>Figure 10-2: SDEdit panda with i_start = 1,3,5,7,10,20(from left to right).</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/image_to_image_3.png" alt="Image-to-image Translation" width="100%" />
+            <figcaption>Figure 10-3: SDEdit rose with i_start = 1,3,5,7,10,20(from left to right).</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.1.7.1: Editing Hand-Drawn and Web Images</h2>
+        <div class="content has-text-justified">
+          <p>
+          </p>
+          <figure>
+            <img src="./static/images_proj5/web1.png" alt="Editing Hand-Drawn and Web Images" width="100%" />
+            <figcaption>Figure 11-1: Web cat image edited using the above method for noise levels [1, 3, 5, 7, 10, 20].</figcaption>
+          </figure>
+            
+          <figure>
+            <img src="./static/images_proj5/sketch1.png" alt="Editing Hand-Drawn and Web Images" width="100%" />
+            <figcaption>Figure 11-2: Hand-drawn cat image edited using the above method for noise levels [1, 3, 5, 7, 10, 20].</figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj5/sketch2.png" alt="Editing Hand-Drawn and Web Images" width="100%" />
+            <figcaption>Figure 11-3: Hand-drawn flower image edited using the above method for noise levels [1, 3, 5, 7, 10, 20].</figcaption>
+          </figure> 
+        </div>
+      </div>
+    </div>
+  </div>
+</section>        
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.1.7.2: Inpainting</h2>
+        <div class="content has-text-justified">
+          <p>
+            We can use the same procedure to implement inpainting. That is, given an image \(x_{orig}\) and 
+            a binary mask \(m\), we can create a new image that has the same content where \(m\) is 0, but 
+            new content where \(m\) is 1.
+          </p>
+          <figure>
+            <img src="./static/images_proj5/inpaint_campanile.png" alt="Inpainting" width="100%" />
+            <figcaption>Figure 12-1: Inpaint Berkeley Campanile. </figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj5/inpaint_smile.png" alt="Inpainting" width="100%" />
+            <figcaption>Figure 12-2: Inpaint smile emoji(smile:)->shocked:o).</figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj5/inpaint_window.png" alt="Inpainting" width="100%" />
+            <figcaption>Figure 12-3: Inpaint window (Bear!).</figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>   
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.1.7.3: Text-Conditional Image-to-image Translation</h2>
+        <div class="content has-text-justified">
+          <p>
+          </p>
+          <figure>
+            <img src="./static/images_proj5/campanile_rocket.png" alt="Inpainting" width="100%" />
+            <figcaption>Figure 13-1: Campanile to arocket ship. </figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/dachshund_pencil.png" alt="Inpainting" width="100%" />
+            <figcaption>Figure 13-1: Dachshund to a pencil. </figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj5/cat_dog.png" alt="Inpainting" width="100%" />
+            <figcaption>Figure 13-1: Cat to a photo of a dog. </figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.1.8: Visual Anagrams</h2>
+        <div class="content has-text-justified">
+          <p>
+          </p>
+          <figure>
+            <img src="./static/images_proj5/flipped1.png" alt="Flipped" width="100%" />
+            <figcaption>Figure : </figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/flipped2.png" alt="Flipped" width="100%" />
+            <figcaption>Figure : </figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/flipped3.png" alt="Flipped" width="100%" />
+            <figcaption>Figure : </figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part A.1.9: Hybrid Images</h2>
+        <div class="content has-text-justified">
+          <p>
+          </p>
+          <figure>
+            <img src="./static/images_proj5/hybrid.png" alt="Hybrid" width="100%" />
+            <figcaption>Figure : </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part B: Diffusion Models from Scratch!</h2>
+        <div class="content has-text-justified">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part B.1: Training a Single-Step Denoising UNet</h2>
+        <div class="content has-text-justified">
+          <p>
+            The first part is to build a simple one-step denoiser.
+            Given a noisy image, we aim to train a denoiser \( D_0 \) such that it maps \( z \) 
+            to a clean image \( x \). To do so, we can optimize over an L2 loss:
+          </p>
+          <p>$$L = \mathbb{E}_{z,x} \| D_\theta(z) - x \|^2$$</p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part B.1.1: Implementing the UNet</h2>
+        <div class="content has-text-justified">
+          <p>
+            In this part, we implement the denoiser as a UNet. 
+            It consists of a few downsampling and upsampling blocks with skip connections, 
+            which uses a number of standard tensor operations.
+          </p>
+          <figure>
+            <img src="./static/images_proj5/Uncondition_UNet.JPG" alt="Unet" width="100%" />
+            <figcaption>Figure : Unconditional UNet</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/standardUnetOperation.JPG" alt="Unet" width="100%" />
+            <figcaption>Figure : Standard UNet Operations</figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part B.1.2 Using the UNet to Train a Denoiser</h2>
+        <div class="content has-text-justified">
+          <p>
+            To train our denoiser, we need to generate training data pairs of (\( z \), \( x \)),
+            where each \( x \) is a clean MNIST digit. For each training batch, we can generate \( z \)
+            from \( x \) using the the following noising process:
+          </p>
+          <p>$$z = x + \sigma \epsilon, \quad \text{where } \epsilon \sim N(0, I).$$</p>
+          <p>Visualize the different noising processes over $$\sigma = [0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]$$assuming normalized $$x \in [0, 1]$$.</p>
+          <figure>
+            <img src="./static/images_proj5/varying_noise_mnist_digits.JPG" alt="Unet" width="100%" />
+            <figcaption>Figure : Varying levels of noise on MNIST digits</figcaption>
+          </figure>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part B.1.2.1: Training</h2>
+        <div class="content has-text-justified">
+          <p>
+          </p>
+          <figure>
+            <img src="./static/images_proj5/training_loss_single_step.JPG" alt="Training Loss" width="100%" />
+            <figcaption>Figure : Training Loss Curve</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/epoch1_denoising_results.JPG" alt="Result Epoch 1" width="100%" />
+            <figcaption>Figure : Results on digits from the test set after 1 epoch of training</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/epoch5_denoising_results.JPG" alt="Result Epoch 5" width="100%" />
+            <figcaption>Figure : Results on digits from the test set after 5 epoch of training</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part B.1.2.2 Out-of-Distribution Testing</h2>
+        <div class="content has-text-justified">
+          <p>Our denoiser was trained on MNIST digits noised with \( \sigma=0.5 \). 
+            Visualize the denoiser results on test set digits with varying levels of noise
+          </p>
+          <p>
+            $$\sigma = [0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]$$
+          </p>
+          <figure>
+            <img src="./static/images_proj5/digits_test_varying_noise_single.JPG" alt="varying noise" width="100%" />
+            <figcaption>Figure : Results on digits from the test set with varying noise levels</figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part B.2: Training a Diffusion Model</h2>
+        <div class="content has-text-justified">
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part B.2.1: Adding Time Conditioning to UNet</h2>
+        <div class="content has-text-justified">
+          <p>
+            We need a way to inject scalar \( t \) into our UNet model to condition it. 
+          </p>
+          <figure>
+            <img src="./static/images_proj5/condition_UNet.JPG" alt="condition UNet" width="100%" />
+            <figcaption>Figure : Conditioned UNet</figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part B.2.2: Training the UNet</h2>
+        <div class="content has-text-justified">
+          <p>
+            Basically, we pick a random image from the training set, a random \( t \),
+             and train the denoiser to predict the noise in \( x \).
+             We repeat this for different images and different \( t \) values 
+             until the model converges and we are happy.
+          </p>
+          <figure>
+            <img src="./static/images_proj5/Algorithm.JPG" alt="Algorithm" width="100%" />
+            <figcaption>Figure : Algorithm B.1. Training time-conditioned UNet</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/time_condition_UNet_training_loss.JPG" alt="Training loss" width="100%" />
+            <figcaption>Figure : Time-Conditioned UNet training loss curve</figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part B.2.3 Sampling from the UNet</h2>
+        <div class="content has-text-justified">
+
+          <figure>
+            <img src="./static/images_proj5/Algorithm2.JPG" alt="Algorithm" width="100%" />
+            <figcaption>Figure : Algorithm B.2. Sampling from time-conditioned UNet</figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj5/timed_epoch1.JPG" alt="Algorithm" width="100%" />
+            <figcaption>Figure : Epoch 1</figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj5/timed_epoch5.JPG" alt="Algorithm" width="100%" />
+            <figcaption>Figure : Epoch 5</figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj5/timed_epoch10.JPG" alt="Algorithm" width="100%" />
+            <figcaption>Figure : Epoch 10</figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj5/timed_epoch15.JPG" alt="Algorithm" width="100%" />
+            <figcaption>Figure : Epoch 15</figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj5/timed_epoch20.JPG" alt="Algorithm" width="100%" />
+            <figcaption>Figure : Epoch 20</figcaption>
+          </figure>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part B.2.4: Adding Class-Conditioning to UNet</h2>
+        <div class="content has-text-justified">
+          <p>
+            To make the results better and give us more control for image generation, 
+            we can also optionally condition our UNet on the class of the digit 0-9. 
+          </p>
+
+          <figure>
+            <img src="./static/images_proj5/Algorithm3.JPG" alt="Algorithm" width="100%" />
+            <figcaption>Figure : Algorithm B.3. Training class-conditioned UNet</figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj5/class_training_loss.JPG" alt="Training Loss" width="100%" />
+            <figcaption>Figure : Class-conditioned UNet training loss curve</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Part B.2.5: Sampling from the Class-Conditioned UNet</h2>
+        <div class="content has-text-justified">
+          <p>
+            The sampling process is the same as part A, where we saw that conditional results aren't good unless
+             we use classifier-free guidance. Use classifier-free guidance with \( \gamma=0.5 \)
+ for this part.et on the class of the digit 0-9. 
+          </p>
+
+          <figure>
+            <img src="./static/images_proj5/Algorithm4.JPG" alt="Algorithm" width="100%" />
+            <figcaption>Figure : Algorithm B.4. Sampling from class-conditioned UNet</figcaption>
+          </figure>
+
+          <figure>
+            <img src="./static/images_proj5/class_epoch1.JPG" alt="Training Loss" width="100%" />
+            <figcaption>Figure : Epoch 1</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/class_epoch5.JPG" alt="Training Loss" width="100%" />
+            <figcaption>Figure : Epoch 5</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/class_epoch10.JPG" alt="Training Loss" width="100%" />
+            <figcaption>Figure : Epoch 10</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/class_epoch15.JPG" alt="Training Loss" width="100%" />
+            <figcaption>Figure : Epoch 15</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_proj5/class_epoch20.JPG" alt="Training Loss" width="100%" />
+            <figcaption>Figure : Epoch 20</figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="./static/videos/nerfies_paper.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
+            we just ask that you link back to this page in the footer.
+            Please remember to remove the analytics code included in the header of the website which
+            you do not want on your website.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
