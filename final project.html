@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
+  <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CS280A Final Project by Xintian Liu and Joseph Suh</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+  <script type="text/javascript" async
+          src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+
+  <style>
+    /* Reduce padding in the section */
+    .section {
+      padding-top: 20px;  /* Reduced from Bulma's default 3rem (48px) */
+      padding-bottom: 20px;
+    }
+  
+    /* Control spacing inside columns */
+    .columns {
+      margin-bottom: 10px; /* Adjust margin below columns */
+    }
+  
+    /* Adjust figure caption spacing */
+    figure {
+      margin-top: 10px;    /* Add slight space above the figure */
+      margin-bottom: 10px; /* Reduce default space below the figure */
+    }
+    
+    /* Reduce spacing around the container */
+    .container {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  
+  </style>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <!-- <a class="navbar-item" href="https://keunhong.com">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a> -->
+
+      <a class="navbar-item" href="index.html">Project 1</a>
+      <a class="navbar-item" href="project2.html">Project 2</a>
+      <a class="navbar-item" href="project3.html">Project 3</a>
+      <a class="navbar-item" href="project4.html">Project 4</a>
+      <a class="navbar-item" href="project5.html">Project 5</a>
+      <a class="navbar-item" href="final project.html">Final Project</a>
+
+    </div>
+
+  </div>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-widescreen">
+      <div class="columns is-centered">
+        <div class="column has-text-centered is-10">
+          <style>
+            .figure-centered {
+              display: flex;
+              justify-content: center; /* Horizontal centering */
+              align-items: center;     /* Vertical centering (if needed) */
+            }
+          </style>
+          
+
+          <h1 class="title is-1 publication-title">CS280A Final Project: Facial Makeup Transfer</h1>
+        
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://bsac.berkeley.edu/people/xintian-liu">Xintian Liu</a></span>,
+              <span class="author-block">
+                <a href="https://www.linkedin.com/in/joseph-suh-42846928b">Joseph Suh</a></span>
+          </div>
+          <div class="column has-text-centered">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-menu is-centered">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="CS280A_final_project_report.pdf" target="_blank">
+        <span class="icon">
+          <i class="fas fa-file-pdf"></i>
+        </span>
+        Project Report
+      </a>
+      <a class="navbar-item" href="https://github.com/JosephJeesungSuh/Makeup_GAN" target="_blank">
+        <span class="icon">
+          <i class="fab fa-github"></i>
+        </span>
+        GitHub Code
+      </a>
+    </div>
+  </div>
+</nav>
+
+
+
+
+<section class="section">
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            This project develops a facial makeup transfer system that effectively transfers makeup styles as well as 
+            makeup removal between source and target images while preserving the identity and natural features of 
+            the face. Our solution addresses critical challenges such as identity preservation and accurate local 
+            detail transfer. To achieve high-quality outputs, we introduce several loss functions, including cycle 
+            consistency loss for reversibility, perceptual loss for feature preservation, and color matching loss 
+            for accurate makeup style transfer.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">1. Introduction</h2>
+        <div class="content has-text-justified">
+          <p>
+            Facial makeup transfer refers to the process of transferring one or several makeup styles 
+            (e.g. lipsticks, eyeshadows, eyebrows, concealers) from the source image to the target image 
+            while preserving the identity of the target face.
+            
+          </p>
+          <P>
+            With the current rapid expansion of social networks filled with photos, 
+            live photos and videos, people are becoming more aware of their appearance. 
+            This makeup transfer technology enables users to apply different looks without 
+            physical application, which is time and cost consuming. It will have broad applications 
+            in terms of digital beauty tools in cosmetic industry which allows customers to virtually 
+            try on facial products without the additional cost of product return. In the meantime, it 
+            is beneficial for content creation, especially for influencers, photographers, and designers, 
+            to make more realistic edits on their work.
+          </P>
+          <p>
+            The key challenges of facial makeup transfer lie in three aspects: 
+            (1) protecting identity: sometimes heavy makeup modifies the eye and lip regions such as bold 
+            eyeshadow and eyeliner. When applied, these alternations make individual's key facial features 
+            difficult to recognize; (2) handling pose variations: many facial images are not captures with 
+            faces directly facing the camera. Slight variations of posing might cause distortions in makeup regions. 
+            For example, uneven lighting or sunlight on individual's face causes gradients in eyeshadow; (3) 
+            accurate local details and textures: accurately capturing and transferring details such as blush 
+            covering cheeks or sharp lip edges without blurring or distorting textures is also required. 
+            Failure in doing so results in unnatural or inconsistent makeup transfer.
+          </p>
+          Our project addresses these challenges by building on a generative adversarial network
+           to achieve high-quality, realistic and customization makeup transfer.
+
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-widescreen">
+    <!-- Related Work -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">2. Related Work</h2>
+        <div class="content has-text-justified">
+          <p>
+            Previous approaches to facial makeup transfer can be broadly categorized into pixel-level transformations and neural network-based techniques. Compared to general style transfer tasks, makeup transfer has its unique challenges originating from the fact that 
+            makeup is applied locally around facial keypoints (nose, eyes, eyebrows, etc).
+          </p>
+          
+          <!-- Subsection 2.1 -->
+          <h3 class="title is-4">2.1 Pixel-Level Transformations</h3>
+          <p>
+            Early methods often relied on image blending [Project3] or histogram matching to transfer makeup styles. 
+            These methods typically fail to handle spatial variations in makeup styles, 
+            such as gradients in eye shadow or contours, resulting in unnatural or inconsistent results.
+          </p>
+          
+          <!-- Subsection 2.2 -->
+          <h3 class="title is-4">2.2 Neural Network-Based Techniques</h3>
+          <p>
+            A generative adversarial network (GAN) has two parts: 
+            the generator learns to generate plausible data and the discriminator 
+            learns to distinguish the generator's fake data from real data. 
+            Existing GAN-based techniques for makeup transfer often fail to disentangle makeup styles 
+            from facial features, leading to unintended modifications in the identity of the target image. 
+            Furthermore, these methods struggle to retain subtle details, such as skin texture or eye shapes, 
+            especially when transferring intricate makeup styles.
+          </p>
+          <p>
+          This project builds on the BeautyGAN framework which leverages a dual-input GAN architecture to 
+          separate facial structure and makeup style effectively. 
+          Specifically, we focus on  and the facial identity preservation, 
+          transfer accuracy, and reversibility.
+          </p>
+      
+          <p>
+            In addition to an adversarial loss, 
+            a cycle consistency loss guides the model to generate a reversible modification, 
+            and a perceptual loss term preserves high-level semantic features and content structure 
+            of the input images. There is also an additional loss term specifically designed for makeup 
+            transfer task aimed at matching the texture and color distribution of key facial regions.
+          </p>
+
+          <p>
+            As illustrated in the figure below, like common GAN frameworks, 
+            we employ an architecture that consists of one generator \( G \) and two discriminators, 
+            one performing on the non-makeup image domain and another performing on the makeup image domain.
+          </p>
+
+          <figure>
+            <img src="./static/images_final/beautyganmodel.png" alt="num_4" width="100%" />
+            <figcaption>Figure 1:The architecture of the modified BeautyGAN model, which contains three modules 
+              in all, a generator \( G \) and two discriminators \( D_A \) and \( D_B \).</figcaption>
+          </figure>
+
+          <!-- Subsection 2.3 -->
+          <h3 class="title is-4">2.3 Additional Loss for Makeup Task</h3>
+          <p>
+            The primary purpose of makeup is to modify the color information (lipsticks, shadows) while 
+          secondary effects such as texture and edges are also important consideration point for cosmetics 
+          consumers. By breaking up the makeup into several individual regions-lips, eyebrows, skin tones, 
+          <i>etc.</i>-and comparing the source image and generated image at those regions in terms of color 
+          distribution and texture, we can systematically establish the makeup loss.
+          </p>
+
+          <!-- Subsection 2.4 -->
+          <h3 class="title is-4">2.4 Implementation Details</h3>
+          <p>
+            We implement the architecture that includes a StyleGAN-based generator for higher resolution 
+            and realism, with the addition of two discriminators to enforce both global and local consistency. 
+            The training is performed on face datasets that come with binary makeup / non-makeup classifcation 
+            label and possibly augmented with additional high-resolution facial images for diversity. 
+            Exploratory hyperparameter tuning are performed on the weightings of loss metrics as well as 
+            a set of training parameters.
+          </p>
+
+          <!-- Subsection 2.5 -->
+          <h3 class="title is-4">2.5 Architecture Detail</h3>
+          
+          <p>
+            The facial makeup transfer system builds on a modified BeautyGAN framework and consists of a 
+            single generator (\( G \)) and two discriminators (\( D_A \), \( D_B \)).
+          </p>
+
+          <h4 class="title is-5">2.5.1 Generator</h4>
+          <p>
+            A dual-input generator starts with two downsampling convolution blocks, 
+            one encoding non-makeup images and another encoding makeup images, followed by a concatenation 
+            of encodings along the channel dimension. Concatenated encodings go through repeated residual 
+            blocks, up-sampled, and passed to two convolution blocks which decode images. 
+            The generator is designed to learn the makeup style transfer between two images. 
+            Separate encoding / decoding blocks are employed since two images are on the different domain, 
+            one on the makeup and one on the non-makeup. The total number of trainable parameters in the 
+            generator is 9.2M.
+          </p>
+
+          <h4 class="title is-5">2.5.2 Discriminator</h4>
+          <p>
+            Two discriminators are employed, each specialized at discriminating the makeup image and 
+            non-makeup image, respectively. 
+            A discriminator is consisted of sequential convolution layers which downsample the input by a 
+            factor of 2 and doubles the number of channels. 
+            A spectral normalization layer is inserted between convolution layers for training stabilization. 
+            The final convolution layer maps the input to a single channel, thereby transforming a 3-channel 
+            input image of \( 256 \times 256 \) to a patch of \( 30 \times 30 \). 
+            The fake / real classification is not done in a binary fashion but based on a number of patches 
+            in 1 (real) or 0 (fake).
+          </p>
+
+          <h3 class="title is-4">2.6 Loss Detail</h3>
+          <p>At each training step, discriminator weights are updated followed by a generator update. 
+            Discriminator loss is calculated from four images, two original images and two fake images 
+            (four fan-ins to \( D_A \) and \( D_B \) in previous architecture figure. 
+            Generator loss is a linear combination of the following losses:</p>
+            <p><i>consistency loss</i>. 
+              When the fake images are passed again to the generator, the output should be mapped to the original image 
+              domain, ideally mapped back to the original images. </p>
+            <p><i>Perceptual loss</i>. 
+              Even after makeup transfer, the generated face should preserve general facial structure 
+              (basic shape of facial keypoints and the overall structure). 
+              Therefore we employ a pretrained VGG-16 and use the intermediate feature 
+              (activation of layer 17, in particular) and compare the feature of original vs. generated images 
+              (two Perceptual Loss in Figure1). </p>
+              <p><i>Color matching loss</i>. 
+                This loss ensures the transferred makeup aligns with the source by matching the color 
+                distribution of facial regions (e.g., lips, eyes, skin). 
+                Histogram matching is used to align color intensity and tone, preserving gradients and 
+                textures for realistic results. These loss components are summed with weights 
+                \( \lambda_{cycle} \), \( \lambda_{percep} \), \( \lambda_{skin} \), 
+                \( \lambda_{lip} \), \( \lambda_{eye} \) for the best training result.</p>
+   
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">3. Experiments</h2>
+        <div class="content has-text-justified">
+          <!-- 3.1 Dataset -->
+          <h3 class="title is-4">3.1 Dataset</h3>
+          <p>
+            The Makeup Transfer dataset of our experiment contains over 2500 makeup images and 1200 non-makeup 
+            images with varying resolutions. 
+            We resized all images to \(  256 \times 256 \) and train our model on the fixed resolution.
+            Each image comes with facial keypoint segmentation data such as eyebrows, ears, noses and eyes.
+            This allows us to readily implement the one-to-one color matching loss for each of the facial 
+            keypoint.
+          </p>
+          Figure2 shows unpaired makeup and non-makeup examples from the dataset.
+          Each training sample consists of one makeup image and one randomly selected non-makeup image, 
+          sampled without replacement. 
+          Since the training image pair (image pair) is randomly generated for every epoch, 
+          we didn't spare a predetermined portion of the dataset for validation or test and but all images 
+          for training.
+          <figure>
+            <img src="./static/images_final/data.png" alt="num_4" width="100%" />
+            <figcaption>Figure 2:Example images of the Makeup Transfer dataset. 
+              Top row: no-makeup images, bottom row: makeup images. We aim to expand the dataset 
+              to encompass diverse demographics (race, age, gender, <i>etc.</i>>) with data augmentation 
+              methods.</figcaption>
+          </figure>
+
+          <p>
+            Instead of using histogram loss over the entire face, in this project, 
+            each face is splitted into different cosmitic regions: 
+            lipsticks, eyes, faces. This is similar to previous work. 
+            Figure3 shows the examples of selected segments in eyes, lips, eyebrows regions in a 
+            non-makeup face.
+          </p>
+
+          <figure>
+            <img src="./static/images_final/segment.png" alt="num_4" width="50%" />
+            <figcaption>Figure 3:Examples of a non-makeup face with parsing mask and eyes, lip, nose and eyebrows regions.</figcaption>
+          </figure>
+
+          <!-- 3.2 Training -->
+          <h3 class="title is-4">3.2 Training</h3>
+          <p>
+            GAN is well known for its sensitivity to training hyperparameters.
+            Due to the limitation of compute, we didn't extensively search the optimal hyperparameters 
+            but rather adopted them from literature with similar architecture design or followed common 
+            GAN training practice.
+          </p>
+          <p>
+            We performed a grid search primarily for the learning rate \( lr = \{1, 2, 4\} \times 10^{-4} \) 
+            and batch size \( \{1, 2, 4, 8, 16\} \) until the 10th training epoch. 
+            We qualitatively found that \( lr = 2 \times 10^{-4} \) (both for the generator and discriminator) 
+            and a batch size of \( 8 \) worked best.
+          </p>
+          <p>
+            The remaining hyperparameters are as follows: number of epochs = 250, 
+            \( \beta_1 = 0.5 \), \( \beta_2 = 0.999 \) (Adam optimizer), and 
+            \( \gamma = 0.99 \) (decay per epoch). For the loss hyperparameters, 
+            we selected \( \lambda \) values such that all loss components have a comparable scale, ensuring equal treatment during backpropagation.
+          </p>
+          <p>
+            The selected values are: \( \lambda_{cycle} = 10.0 \), \( \lambda_{percep} = 0.05 \), 
+            \( \lambda_{skin} = 0.1 \), \( \lambda_{lip} = 1.0 \), and \( \lambda_{eye} = 1.0 \).
+          </p>
+
+          <p>
+            For example, the weighting for skin color is much smaller than weights for lips / eyes because the number of pixels corresponding to skin is much larger, resulting in higher L1 loss.
+            Training over 250 epochs took 2.5 days (15 min/epoch) on a single NVIDIA RTX A5000 GPU.
+          </p>
+
+           <!-- 3.3 Result -->
+           <h3 class="title is-4">3.3 Result</h3>
+           <figure>
+            <img src="./static/images_final/intermediate_result.png" alt="num_4" width="100%" />
+            <figcaption>Figure 4:Intermediate results from training. Each rows correspond to training samples and their makeup transferred result after the 30th step, 1st epoch, and 40th epoch, respectively.</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images_final/final_result.png" alt="num_4" width="100%" />
+            <figcaption>Figure 5:Final result with our face. Skin color, lip, and eye makeup styles are transferred from Xintian to Joseph without interfering with the key facial features of Joseph.</figcaption>
+          </figure>
+          <p>
+            Figure4 shows intermediate results. At the very initial stage of training 
+            (before seeing less than 1,000 samples) the generator cannot produce sensible images, 
+            pretty much interpolating between input images on the pixel space. At the end of the first epoch, 
+            the model can produce distinct images but still suffer from irregularities, such as a black hole 
+            (appearing above the left ear of makeup person in Figure4). 
+            After about 40 epochs of training, the model starts to produce makeup transferred images and 
+            stabilizes after on. Figure5 is an inference on the fully trained model with our own pictures.
+          </p>
+
+         
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">4. Conclusions</h2>
+        <div class="content has-text-justified">
+          <p>
+            In this project, we proposed and implemented a robust modified BeautyGAN architecture for 
+            facial makeup transfer. With single generator presented, our model achieves both makeup 
+            application and removal  on the target images given different source images with high efficiency. 
+            To ensure high-qualify results, we introduced several loss functions including adversarial loss, 
+            cycle consistency loss, perceptual loss and color matching loss.
+          </p>
+          
+          <p>
+            As shown in experiment results Figure4 and Figure5, our modified BeautyGAN produces natural-looking 
+          and high-resolution outputs. It addresses critical challenges in makeup transferring such as identity 
+          preservation and detail accuracy and can potentially provide a platform for practical applications 
+          including virtual try-on systems.
+
+          </p>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section"></section>
+  <div class="container is-max-widescreen">
+    <!-- Abstract -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">5. Future Work</h2>
+        <div class="content has-text-justified">
+          <p>
+            <i>Limitations</i>>. One limitation of our work is that the model does not account for variations 
+            in makeup perception caused by different lighting conditions.For example, in 
+            Figure5 Xintian's photo was taken outdoors with pronounced shadows due to sunlight orientation, 
+            while Joseph's photo was captured indoors. The model fails to consider these photographic 
+            conditions, leading to a generated image where Fake Joseph's skin tone 
+            appears much darker than Xintian's actual makeup style. Addressing this issue by incorporating 
+            lighting variations into image generation models could be a next for future projects.
+
+          </p>
+          <p>
+            Moving forward, we can explore the following improvement:
+
+          </p>
+         <p>(1) Dataset expansion: incorporating more diverse demographics such as age, 
+          gender to improve diversity and applicability to broad range of potential users;
+          </p>
+          <p>
+            (2) Real-time processing: optimizing the architecture for video or real-time makeup transfer;
+
+         </p>
+          <p>
+            (3) User interaction: enhancing customized control for makeup style editing, possibly with additional conditioning prompts.
+          </p>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="./static/videos/nerfies_paper.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
+            we just ask that you link back to this page in the footer.
+            Please remember to remove the analytics code included in the header of the website which
+            you do not want on your website.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
